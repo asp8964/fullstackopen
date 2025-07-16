@@ -5,23 +5,21 @@ const Header = ({ text }) => <h1>{text}</h1>;
 const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
 
 const Statistics = (props) => {
-  if (props.good === 0 && props.neutral === 0 && props.bad === 0) {
+  const { good, neutral, bad } = props;
+  if (good === 0 && neutral === 0 && bad === 0) {
     return <p>No feedback given</p>;
   }
 
-  const all = props.good + props.neutral + props.bad;
+  const all = good + neutral + bad;
   return (
     <table>
       <tbody>
-        <StatisticLine text="good" value={props.good} />
-        <StatisticLine text="neutral" value={props.neutral} />
-        <StatisticLine text="bad" value={props.bad} />
+        <StatisticLine text="good" value={good} />
+        <StatisticLine text="neutral" value={neutral} />
+        <StatisticLine text="bad" value={bad} />
         <StatisticLine text="all" value={all} />
-        <StatisticLine text="average" value={(props.good - props.bad) / all} />
-        <StatisticLine
-          text="positive"
-          value={(props.good / all) * 100 + " %"}
-        />
+        <StatisticLine text="average" value={(good - bad) / all} />
+        <StatisticLine text="positive" value={(good / all) * 100 + " %"} />
       </tbody>
     </table>
   );
