@@ -1,4 +1,6 @@
 .DS_Store
 .sonarlint
 .vscode
+node_modules
 introdemo
+backend
