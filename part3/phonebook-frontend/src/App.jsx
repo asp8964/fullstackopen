@@ -46,6 +46,10 @@ const App = () => {
             setTimeout(() => {
               setMessage(null);
             }, 3000);
+          })
+          .catch((error) => {
+            console.log("error", error);
+            setMessage({ value: error.response.data.error, isError: true });
           });
       }
       setNewName("");
@@ -57,21 +61,27 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    personService.create(PersonObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      // setMessage(`Added ${returnedPerson.name}`);
-      // setIsError(false);
-      setMessage({
-        value: `Added ${newName}`,
-        isError: false,
-      });
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
+    personService
+      .create(PersonObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        // setMessage(`Added ${returnedPerson.name}`);
+        // setIsError(false);
+        setMessage({
+          value: `Added ${newName}`,
+          isError: false,
+        });
+        setTimeout(() => {
+          setMessage(null);
+        }, 3000);
 
-      setNewName("");
-      setNewNumber("");
-    });
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        // console.log("error", error);
+        setMessage({ value: error.response.data.error, isError: true });
+      });
   };
 
   const removePerson = (person) => {
@@ -80,7 +90,7 @@ const App = () => {
         .remove(person.id)
         .then(() => setPersons(persons.filter((p) => p.id !== person.id)))
         .catch(() => {
-          // console.log(error)
+          // console.log("error", error);
           // setMessage(
           //   `Information of ${rperson.name} has already been removed from server`
           // );
