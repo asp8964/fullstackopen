@@ -16,7 +16,13 @@ const newBlog = {
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(helper.initialBlogs)
+  const userId = await helper.getUserId()
+  // console.log(userId)
+  const initialBlogs = helper.initialBlogs.map((blog) => {
+    blog.user = userId
+    return blog
+  })
+  await Blog.insertMany(initialBlogs)
 })
 
 after(async () => {
@@ -25,7 +31,7 @@ after(async () => {
 
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
-  console.log(response.body)
+  // console.log(response.body)
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
@@ -33,16 +39,19 @@ test('all blogs are returned', async () => {
 test('id is the unique identifier property', async () => {
   const blogs = await helper.blogsInDb()
   const firstBlog = blogs[0]
-  const initialIds = helper.initialBlogs.map((blog) => blog._id)
-  //   console.log(firstBlog, initialIds)
+  const blogsById = await Blog.find({ _id: firstBlog.id })
+  // console.log(firstBlog, blogsById)
 
-  assert(initialIds.some((id) => id === firstBlog.id))
+  assert.deepStrictEqual(firstBlog.id, blogsById[0]._id.toString())
 })
 
 test('a valid blog can be added', async () => {
+  const token = await helper.getToken()
+
   await api
     .post('/api/blogs')
     .send(newBlog)
+    .set('Authorization', `Bearer ${token}`)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
@@ -56,8 +65,12 @@ test('a valid blog can be added', async () => {
 })
 
 test('non exist likes return zero', async () => {
+  const token = await helper.getToken()
+  // console.log('token', token)
+
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -72,27 +85,40 @@ test('non exist likes return zero', async () => {
 })
 
 test('title or url is required', async () => {
+  const token = await helper.getToken()
   const newBlogWithNoTitle = {
     author: 'fullstackopen',
     url: 'https://fullstackopen.com/en/',
     likes: 11,
   }
-  await api.post('/api/blogs').send(newBlogWithNoTitle).expect(400)
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
+    .send(newBlogWithNoTitle)
+    .expect(400)
 
   const newBlogWithNoUrl = {
     title: 'async/await simplifies making async calls',
     author: 'fullstackopen',
     likes: 12,
   }
-  await api.post('/api/blogs').send(newBlogWithNoUrl).expect(400)
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
+    .send(newBlogWithNoUrl)
+    .expect(400)
 })
 
 describe('deletion of a blog', () => {
   test('succeeds with status code 204 if id is valid', async () => {
+    const token = await helper.getToken()
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
 
@@ -104,7 +130,7 @@ describe('deletion of a blog', () => {
 })
 
 describe('update of a blog', () => {
-  test.only('update a specific blog likes', async () => {
+  test('update a specific blog likes', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const firstBlog = blogsAtStart[0]
     // console.log('first blog', firstBlog)
@@ -118,4 +144,12 @@ describe('update of a blog', () => {
 
     assert.strictEqual(updatedBlog._body.likes, firstBlog.likes + 1)
   })
+})
+
+test('add a blog without token', async () => {
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
 })
