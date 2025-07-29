@@ -1,5 +1,5 @@
 const assert = require('node:assert')
-const { test, after, beforeEach, describe } = require('node:test')
+const { test, after, beforeEach, describe, before } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
@@ -8,11 +8,18 @@ const Blog = require('../models/blog')
 
 const api = supertest(app)
 
+let token
+
 const newBlog = {
   title: 'async/await simplifies making async calls',
   author: 'fullstackopen',
   url: 'https://fullstackopen.com/en/',
 }
+
+before(async () => {
+  token = await helper.getToken()
+  // console.log('initial token ', token)
+})
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -46,7 +53,8 @@ test('id is the unique identifier property', async () => {
 })
 
 test('a valid blog can be added', async () => {
-  const token = await helper.getToken()
+  // const token = await helper.getToken()
+  // console.log('add', token)
 
   await api
     .post('/api/blogs')

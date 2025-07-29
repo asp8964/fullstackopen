@@ -13,7 +13,10 @@ const userExtractor = (request, _, next) => {
   const authorization = request.get('Authorization')
   if (authorization && authorization.startsWith('Bearer ')) {
     const token = authorization.replace('Bearer ', '')
-    request.user = jwt.verify(token, process.env.SECRET)
+    request.user = jwt.verify(
+      token,
+      new TextEncoder().encode(process.env.SECRET)
+    )
   }
   next()
 }

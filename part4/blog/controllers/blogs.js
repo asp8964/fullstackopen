@@ -18,6 +18,7 @@ blogsRouter.post('/', async (request, response) => {
   // console.log(request)
 
   const decodedToken = request.user
+  // console.log(decodedToken)
 
   if (!decodedToken?.id) {
     return response.status(401).json({ error: 'token invalid' })

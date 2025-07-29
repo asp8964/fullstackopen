@@ -10,7 +10,7 @@ const totalLikes = (blogs) => {
 
 const favoriteBlog = (blogs) => {
   const max = _.maxBy(blogs, 'likes')
-  console.log(max)
+  // console.log(max)
   return max
   //   return _.maxBy(blogs, 'likes')
 }

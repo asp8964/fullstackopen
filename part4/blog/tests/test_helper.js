@@ -80,7 +80,7 @@ const getToken = async () => {
     username: user.username,
     id: user._id,
   }
-  return jwt.sign(userForToken, process.env.SECRET)
+  return jwt.sign(userForToken, new TextEncoder().encode(process.env.SECRET))
 }
 
 const getUserId = async () => {
