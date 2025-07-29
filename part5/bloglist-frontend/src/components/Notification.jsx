@@ -14,7 +14,7 @@ const Notification = ({ message }) => {
     color: 'red',
   }
 
-  if (message === null || message.value == null) {
+  if (message === null || message.value === null) {
     return <></>
   }
 

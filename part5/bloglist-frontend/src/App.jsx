@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/Login'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,16 +13,18 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
-  {
-    /* BlogForm.jsx:32 A component is changing an uncontrolled input to be controlled. 
-  This is likely caused by the value changing from undefined to a defined value, which should not happen.
-  Decide between using a controlled or uncontrolled input element for the lifetime of the component.
-  More info: https://react.dev/link/controlled-components */
+  const blogFormRef = useRef()
+
+  const sortAndSetBlogs = (blogs) => {
+    setBlogs(
+      blogs.sort((o, a) =>
+        o.likes === a.likes ? 0 : o.likes > a.likes ? -1 : 1
+      )
+    )
   }
-  const [blog, setBlog] = useState({ title: '', author: '', url: '' })
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    blogService.getAll().then((blogs) => sortAndSetBlogs(blogs))
   }, [])
 
   useEffect(() => {
@@ -62,13 +65,12 @@ const App = () => {
     setUser(null)
   }
 
-  const createBlog = async (event) => {
-    event.preventDefault()
+  const createBlog = async (blogObject) => {
     try {
-      const result = await blogService.create(blog)
+      blogFormRef.current.toggleVisibility()
+      const result = await blogService.create(blogObject)
 
       setBlogs(blogs.concat(result))
-      setBlog({ title: '', author: '', url: '' })
       setMessage({
         value: `a new blog ${result.title} by ${result.author} added`,
         isError: false,
@@ -82,6 +84,25 @@ const App = () => {
         setMessage(null)
       }, 5000)
     }
+  }
+
+  const updateBlog = async (blogObject) => {
+    const result = await blogService.update(blogObject)
+
+    sortAndSetBlogs(
+      blogs.map((blog) =>
+        blog.id.toString() === result.id.toString()
+          ? { ...blog, likes: result.likes }
+          : blog
+      )
+    )
+    // console.log(result)
+  }
+
+  const deleteBlog = async (id) => {
+    await blogService.remove(id)
+    // console.log('finish', result)
+    setBlogs(blogs.filter((blog) => blog.id !== id))
   }
 
   return (
@@ -106,9 +127,18 @@ const App = () => {
             {user.name} logged in
             <button onClick={handleLogout}>logout</button>
           </p>
-          <BlogForm createBlog={createBlog} blog={blog} setBlog={setBlog} />
+          <Togglable buttonLabel="new note" ref={blogFormRef}>
+            {/* <Togglable ref={blogFormRef}> */}
+            <BlogForm createBlog={createBlog} />
+          </Togglable>
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              user={user}
+              updateBlog={updateBlog}
+              deleteBlog={deleteBlog}
+            />
           ))}
         </div>
       )}

@@ -1,8 +1,27 @@
-const BlogForm = ({ createBlog, blog, setBlog }) => {
+import { useState } from 'react'
+
+const BlogForm = ({ createBlog }) => {
+  /* BlogForm.jsx:32 A component is changing an uncontrolled input to be controlled.
+  This is likely caused by the value changing from undefined to a defined value, which should not happen.
+  Decide between using a controlled or uncontrolled input element for the lifetime of the component.
+  More info: https://react.dev/link/controlled-components */
+
+  const [blog, setBlog] = useState({ title: '', author: '', url: '' })
+
+  const addBlog = (event) => {
+    event.preventDefault()
+    createBlog({
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+    })
+    setBlog({ title: '', author: '', url: '' })
+  }
+
   return (
     <div>
       <h2>create new</h2>
-      <form onSubmit={createBlog}>
+      <form onSubmit={addBlog}>
         <Input
           text="title:"
           onChange={(e) => setBlog({ ...blog, title: e.target.value })}
