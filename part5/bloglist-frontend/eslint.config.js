@@ -4,6 +4,7 @@ import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import vitestGlobals from 'eslint-plugin-vitest-globals'
 
 export default defineConfig([
   globalIgnores(['dist', '.eslintrc.cjs']),
@@ -20,10 +21,11 @@ export default defineConfig([
       reactPlugin.configs.flat['jsx-runtime'],
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
+      vitestGlobals.configs.recommended,
     ],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: { ...globals.browser, ...vitestGlobals.environments.env },
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },

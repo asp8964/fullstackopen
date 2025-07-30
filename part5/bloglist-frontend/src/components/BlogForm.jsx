@@ -22,21 +22,32 @@ const BlogForm = ({ createBlog }) => {
     <div>
       <h2>create new</h2>
       <form onSubmit={addBlog}>
-        <Input
-          text="title:"
-          onChange={(e) => setBlog({ ...blog, title: e.target.value })}
-          value={blog?.title}
-        />
-        <Input
-          text="author:"
-          onChange={(e) => setBlog({ ...blog, author: e.target.value })}
-          value={blog?.author}
-        />
-        <Input
-          text="url:"
-          onChange={(e) => setBlog({ ...blog, url: e.target.value })}
-          value={blog?.url}
-        />
+        <div>
+          title:
+          <input
+            onChange={(e) => setBlog({ ...blog, title: e.target.value })}
+            value={blog?.title}
+            placeholder="input title"
+          />
+        </div>
+        <div>
+          author:
+          <input
+            onChange={({ target }) =>
+              setBlog({ ...blog, author: target.value })
+            }
+            value={blog?.author}
+            placeholder="input author"
+          />
+        </div>
+        <div>
+          url:
+          <input
+            onChange={(e) => setBlog({ ...blog, url: e.target.value })}
+            value={blog?.url}
+            placeholder="input url"
+          />
+        </div>
         <div>
           <button type="submit">create</button>
         </div>
@@ -45,11 +56,11 @@ const BlogForm = ({ createBlog }) => {
   )
 }
 
-const Input = ({ text, onChange, value }) => (
-  <div>
-    {text}
-    <input onChange={onChange} value={value} />
-  </div>
-)
+// const Input = ({ text, onChange, value }) => (
+//   <div>
+//     {text}
+//     <input onChange={onChange} value={value} />
+//   </div>
+// )
 
 export default BlogForm
