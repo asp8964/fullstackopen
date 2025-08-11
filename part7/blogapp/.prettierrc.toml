@@ -1,0 +1,5 @@
+experimentalOperatorPosition = "end"
+semi = false
+singleQuote = true
+jsxSingleQuote = true
+bracketSameLine = true
