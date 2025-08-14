@@ -4,6 +4,7 @@ import AuthorBirth from './AuthorBirth'
 const Authors = (props) => {
   const result = useQuery(ALL_AUTHORS, {
     skip: !props.show,
+    fetchPolicy: 'cache-and-network',
   })
   // console.log('before', result, props.show)
 
@@ -28,7 +29,7 @@ const Authors = (props) => {
             <th>books</th>
           </tr>
           {authors.map((a) => (
-            <tr key={a.name}>
+            <tr key={a.id}>
               <td>{a.name}</td>
               <td>{a.born}</td>
               <td>{a.bookCount}</td>
@@ -36,7 +37,7 @@ const Authors = (props) => {
           ))}
         </tbody>
       </table>
-      <AuthorBirth authors={authors} />
+      {props.token && <AuthorBirth authors={authors} />}
     </div>
   )
 }
