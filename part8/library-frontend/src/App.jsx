@@ -3,8 +3,15 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
 import Recommend from './components/Recommend'
+import { ALL_BOOKS, BOOK_ADDED } from './queries'
+import { updateCache } from './utils'
+
+import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev'
+
+loadDevMessages()
+loadErrorMessages()
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -17,6 +24,28 @@ const App = () => {
     localStorage && setToken(localStorage)
   }, [])
   // console.log(token)
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      // console.log(data)
+      const addedBook = data?.data?.bookAdded
+
+      window.alert(
+        `
+        Book add success: 
+        title: ${addedBook?.title}
+        author: ${addedBook?.author?.name}
+        published: ${addedBook?.published}
+        genres: ${addedBook?.genres}`
+      )
+
+      updateCache(
+        client.cache,
+        { query: ALL_BOOKS, variables: { genre: '' } },
+        addedBook
+      )
+    },
+  })
 
   const logout = () => {
     setToken(null)

@@ -9,7 +9,7 @@ const Books = (props) => {
 
   const { data } = useQuery(ALL_BOOKS, {
     variables: { genre: filterText },
-    skip: !props.show,
+    // skip: !props.show,
     fetchPolicy: 'cache-and-network',
   })
 
